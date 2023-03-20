@@ -3,9 +3,11 @@ const PluginDone = require('./plugins/PluginDone');
 const path = require('path');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   devtool: false,
-  extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+  },
   entry: {
     main1: './src/index1.js',
     main2: './src/index2.js',

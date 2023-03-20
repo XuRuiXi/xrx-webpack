@@ -107,7 +107,7 @@ class Compilation {
           // 依赖的文件的绝对路径
           let depModulePath = path.join(dirname, depModuleName);
           // 获取当前支持的扩展名
-          const extensions = this.options.extensions;
+          const extensions = this.options.resolve.extensions;
           // 尝试添加扩展名，如果文件存在，则返回文件的绝对路径
           depModulePath = tryExtensions(depModulePath, extensions);
           // 把依赖的文件路径添加到依赖列表中，当文件发生变化时，重新编译
