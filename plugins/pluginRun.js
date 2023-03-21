@@ -3,8 +3,8 @@ class pluginRun {
     this.name = 'pluginRun';
   }
   apply(compiler) {
-    compiler.hooks.run.tap(this.name, compilation => {
-      // console.log('The webpack build process is starting!!!');
+    compiler.hooks.run.tap(this.name, compiler => {
+      // compiler表示的是Compiler的实例
     });
   }
 }

@@ -6,8 +6,9 @@ class Compiler {
   constructor(options) {
     this.options = options;
     this.hooks = {
-      run: new SyncHook(['compilation']),
-      done: new SyncHook(['stats']),
+      run: new SyncHook(['compilation']), // 同步钩子
+      done: new SyncHook(['stats']), // 同步钩子
+      emit: new SyncHook(['compilation']),  // 同步钩子
     };
   }
   // 4、执行run方法，开始编译

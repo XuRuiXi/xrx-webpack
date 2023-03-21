@@ -1,5 +1,6 @@
 const PluginRun = require('./plugins/PluginRun');
 const PluginDone = require('./plugins/PluginDone');
+const pluginEmit = require('./plugins/pluginEmit');
 const path = require('path');
 
 module.exports = {
@@ -30,5 +31,6 @@ module.exports = {
   plugins: [
     new PluginRun(),
     new PluginDone(),
+    new pluginEmit(),
   ],
 }

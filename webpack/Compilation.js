@@ -82,7 +82,7 @@ class Compilation {
     // 将匹配到的loader进行合并，然后调用loader对文件内容进行转换
     const loaders = matchedRules.flat(Infinity);
     sourceCode = loaders.reduceRight((sourceCode, loader) => {
-      return require(loader)(sourceCode);
+      return require(loader).call(this, sourceCode);
     }, sourceCode);
 
     // 7、找出文件中的依赖模块，递归调用buildModule方法，对依赖模块进行处理

@@ -1,10 +1,128 @@
+### 前置知识
 在Node运行环境下
 - process.cwd()：返回Node进程的当前工作目录
 - process.argv：返回Node进程的命令行参数（shell语句）
 - __dirname：返回当前模块的目录名
 - __filename：返回当前模块的文件名
 
+babel各个模块的作用
+- parser：将源码转换成ast
+- traverse：遍历ast
+- types：用来修改ast
+- generator：将ast转换成源码
 
+
+### webpack是怎么处理每个模块的导入导出的
+- 建立一个对象存放所有依赖的文件内容，key是文件路径，value是一个函数，函数主体是文件内容
+- 建立require函数，用来处理每个模块的导入导出。require函数接收一个参数，就是模块的路径，然后根据路径去对象中找到对应的函数，传入module，执行函数，改变module.exports的值。最后require函数返回module.exports的值
+- 依赖的模块也要经过上面两个步骤，所以要递归调用require函数
+
+
+
+
+```js
+
+(() => {
+  const modules = {
+    './src/constant/name.js': (module, exports, require) => {
+      const name1 = '徐瑞熙11111';
+      module.exports = {
+        name1: name1
+      };
+    }, './src/constant/constant.js': (module, exports, require) => {
+      const {
+        name1
+      } = require("./src/constant/name.js");
+      const name = '徐瑞熙';
+      module.exports = {
+        name: name,
+        name1: name1
+      };
+    }
+  }
+  const cache = {};
+  function require(moduleId) {
+    if (cache[moduleId]) {
+      return cache[moduleId].exports;
+    }
+    const module = cache[moduleId] = {
+      exports: {}
+    };
+    modules[moduleId](module, module.exports, require);
+    return module.exports;
+  }
+  const {
+    name,
+    name1
+  } = require("./src/constant/constant.js");
+  console.log(name);
+  console.log(name1);
+})()
+
+```
+
+
+---
+
+### plugin和loader的区别
+- loader：用来处理匹配到的模块（处理模块）。
+- plugin：在webpack整个打包过程中，会广播出许多事件，plugin可以监听这些事件，在合适的时机通过webpack提供的API改变输出结果（改变打包结果）。
+
+
+### webpack插件相关知识
+- tapable：webpack的插件系统，webpack的插件都是基于tapable实现的。在插件的apply方法中，通过compiler.hooks.xxx.tap注册插件
+- hooks的生命周期
+  - run：在run方法开始时触发
+  - done：在run方法结束时触发
+  - emit：在生成资源到 output 目录之前触发
+  - 。。。。。。
+### webpack loader相关知识
+- loader执行顺序：从数组的最后一个元素开始执行，然后依次向前执行。
+  - pitch方法是在loader执行之前执行的，pitch方法的执行顺序是从数组的第一个元素开始执行，然后依次向后执行。
+![loader执行顺序](./assets/loader执行顺序.jpg)
+  - 如果pitch方法返回了一个值，那么这个值会被传递给loader的第一个参数，然后loader的第一个参数就不是source了，而是pitch方法返回的值。而且后面的loader就不会执行了。
+  ```js
+  function logger(scorce) {
+    return scorce + 'var logger = function() { console.log("logger1"); };';
+  }
+  logger.pitch = function() {
+    return 'pitch';
+  }
+  ```
+  ![pitch](./assets/pitch.jpg)
+
+- 在loader里面，this指向的是loaderContext，loaderContext是一个loader的实例，它有很多属性和方法，比如this.query，this.async()等等。
+  - this.query：获取loader的options
+  - this.async()：让loader变成异步的
+  - this.emitFile()：发射文件
+  - 。。。。。。
+
+
+- 通过使用this.async()方法，可以让loader变成异步的
+```js
+function logger(scorce) {
+  const callback = this.async();
+  setTimeout(() => {
+    // null的意思是没有错误，第一个参数是错误信息
+    callback(null, scorce + 'var logger = function() { console.log("logger1"); };');
+  }, 1000);
+}
+```
+
+- this.emitFile()：发射文件
+```js
+function logger(scorce) {
+  // 写入文件
+  this.emitFile('dist/1.txt', 'hello world');
+  return scorce + 'var logger = function() { console.log("logger1"); };';
+}
+```
+
+---
+
+
+
+## 开始
 #### 调试文件
 ./webpackDebugger.js
 
@@ -197,7 +315,7 @@ class Compilation {
     // 将匹配到的loader进行合并，然后调用loader对文件内容进行转换
     const loaders = matchedRules.flat(Infinity);
     sourceCode = loaders.reduceRight((sourceCode, loader) => {
-      return require(loader)(sourceCode);
+      return require(loader).call(this, sourceCode);
     }, sourceCode);
 
     // 7、找出文件中的依赖模块，递归调用buildModule方法，对依赖模块进行处理

@@ -3,8 +3,8 @@ class pluginDone {
     this.name = 'pluginDone';
   }
   apply(compiler) {
-    compiler.hooks.done.tap(this.name, compilation => {
-      // console.log('The webpack build process is end!!!');
+    compiler.hooks.done.tap(this.name, stats => {
+      // stats是一个对象，包含了打包后的所有统计信息。
     });
   }
 }
