@@ -118,6 +118,17 @@ function logger(scorce) {
 }
 ```
 
+- 当我们需要使用文件的原始二进制内容时，需要设置loader的raw属性为true
+```js
+function imgLoader(source){
+  this.emitFile('img.png', source)
+  return `module.exports = "img.png"`;
+}
+// 设置为原始二进制
+imgLoader.raw = true;
+
+```
+
 ---
 
 

@@ -26,6 +26,12 @@ module.exports = {
           path.join(__dirname, './loaders/logger2.js'),
         ],
       },
+      {
+        test: /\.png$/,
+        use: [
+          path.join(__dirname, './loaders/imgLoader.js'),
+        ],
+      }
     ],
   },
   plugins: [
