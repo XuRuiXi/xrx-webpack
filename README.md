@@ -65,17 +65,22 @@ babel各个模块的作用
 ---
 
 ### plugin和loader的区别
-- loader：用来处理匹配到的模块（处理模块）。
+- loader：用来处理匹配到的模块（处理模块），功能比较单一。
 - plugin：在webpack整个打包过程中，会广播出许多事件，plugin可以监听这些事件，在合适的时机通过webpack提供的API改变输出结果（改变打包结果）。
 
 
 ### webpack插件相关知识
-- tapable：webpack的插件系统，webpack的插件都是基于tapable实现的。在插件的apply方法中，通过compiler.hooks.xxx.tap注册插件
+- tapable：webpack的插件系统是基于tapable实现的。在插件的apply方法中，通过compiler.hooks.xxx.tap注册插件
 - hooks的生命周期
   - run：在run方法开始时触发
   - done：在run方法结束时触发
   - emit：在生成资源到 output 目录之前触发
   - 。。。。。。
+
+这些生命周期的回调函数，webpack会传入不同的参数，比如run的回调函数会传入一个compiler对象，done的回调函数会传入一个stats对象。我们根据这些参数，就可以在合适的时机做一些事情。例如，我们可以在emit的回调函数中，通过compilation.assets获取到所有的资源，然后对资源做一些处理，比如压缩，然后再把资源写入到output目录中。
+
+
+
 ### webpack loader相关知识
 - loader执行顺序：从数组的最后一个元素开始执行，然后依次向前执行。
   - pitch方法是在loader执行之前执行的，pitch方法的执行顺序是从数组的第一个元素开始执行，然后依次向后执行。
